@@ -6,8 +6,8 @@
 
 .stories-list > li {
   color: gray;
-  font-size: 0.8rem;
-  margin: 10px 0;
+  font-size: 1rem;
+  margin: 10px 10px;
 }
 
 #stories-loading-msg {
@@ -22,7 +22,7 @@
 .story-link {
   color: black;
   font-size: 0.85rem;
-  font-weight: normal;
+  font-weight: bold;
   margin: 18px 0;
 }
 
@@ -31,9 +31,25 @@
 }
 
 .story-author {
-  margin-left: 2em;
+  display: block;
+  color: green;
+  margin-left: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .story-user {
   display: block;
+  margin-left: 20px;
+  color: orange;
+}
+
+/* My Stories */
+.fa-trash-alt:hover {
+  cursor: pointer;
+  color: red;
+}
+
+.star:hover {
+  cursor: pointer;
 }

@@ -54,16 +54,23 @@ class StoryList {
     //  instance method?
 
     // query the /stories endpoint (no auth required)
-    const response = await axios({
-      url: `${BASE_URL}/stories`,
-      method: "GET",
-    });
+    try {
+      const response = await axios({
+        url: `${BASE_URL}/stories`,
+        method: "GET",
+      });
+  
+      // turn plain old story objects from API into instances of Story class
+      const stories = response.data.stories.map(story => new Story(story));
+  
+      // build an instance of our own class using the new array of stories
+      return new StoryList(stories);
+    
+    } catch (e) {
+      console.debug(`Error - Could not get story list from API - Return code: ${e}`);
+      return 0;
+    }
 
-    // turn plain old story objects from API into instances of Story class
-    const stories = response.data.stories.map(story => new Story(story));
-
-    // build an instance of our own class using the new array of stories
-    return new StoryList(stories);
   }
 
   /** Adds story data to API, makes a Story instance, adds it to story list.
@@ -73,8 +80,26 @@ class StoryList {
    * Returns the new Story instance
    */
 
-  async addStory( /* user, newStory */) {
-    // UNIMPLEMENTED: complete this function!
+  async addStory( user, newStory ) {
+    // Update the API with the new story
+    try{
+      const response = await axios.post(
+        `${BASE_URL}/stories`, 
+        {
+          token: user.loginToken, 
+          story: newStory
+        });
+      // Update both currentUser and storyList instances with new story          
+      const story = new Story(response.data.story);
+      currentUser.ownStories.push(story);
+      storyList.stories.unshift(story);  
+      
+      return story;
+
+    } catch (e) {
+      console.debug(`Error - Could not add story - Return code: ${e}`);
+      return 0;
+    }    
   }
 }
 
@@ -117,51 +142,61 @@ class User {
    */
 
   static async signup(username, password, name) {
-    const response = await axios({
-      url: `${BASE_URL}/signup`,
-      method: "POST",
-      data: { user: { username, password, name } },
-    });
-
-    let { user } = response.data
-
-    return new User(
-      {
-        username: user.username,
-        name: user.name,
-        createdAt: user.createdAt,
-        favorites: user.favorites,
-        ownStories: user.stories
-      },
-      response.data.token
-    );
+    try{
+      const response = await axios({
+        url: `${BASE_URL}/signup`,
+        method: "POST",
+        data: { user: { username, password, name } },
+      });
+  
+      let { user } = response.data
+  
+      return new User(
+        {
+          username: user.username,
+          name: user.name,
+          createdAt: user.createdAt,
+          favorites: user.favorites,
+          ownStories: user.stories
+        },
+        response.data.token
+      );
+    } catch(e) {
+      console.debug(`Error - Could not sign up - return code: ${e}`);
+      return null;
+    }
   }
 
   /** Login in user with API, make User instance & return it.
 
    * - username: an existing user's username
    * - password: an existing user's password
-   */
+   */  
 
   static async login(username, password) {
-    const response = await axios({
-      url: `${BASE_URL}/login`,
-      method: "POST",
-      data: { user: { username, password } },
-    });
-
-    let { user } = response.data;
-
-    return new User(
-      {
-        username: user.username,
-        name: user.name,
-        createdAt: user.createdAt,
-        favorites: user.favorites,
-        ownStories: user.stories
-      },
-      response.data.token
-    );
+    try{
+      const response = await axios({
+        url: `${BASE_URL}/login`,
+        method: "POST",
+        data: { user: { username, password } },
+      });
+  
+      let { user } = response.data;
+  
+      return new User(
+        {
+          username: user.username,
+          name: user.name,
+          createdAt: user.createdAt,
+          favorites: user.favorites,
+          ownStories: user.stories
+        },
+        response.data.token
+      );
+    } catch(e) {
+      console.debug(`Error - Could not sign in - return code: ${e}`);
+      return null;
+    }
   }
 
   /** When we already have credentials (token & username) for a user,
@@ -175,6 +210,8 @@ class User {
         method: "GET",
         params: { token },
       });
+
+//      console.debug(response.data);
 
       let { user } = response.data;
 

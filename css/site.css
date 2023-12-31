@@ -3,6 +3,7 @@
 body {
   font-family: Arimo, sans-serif;
   margin: 8px 7.5vw;
+  background-color: lavender;
 }
 
 h1 {
@@ -37,7 +38,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   align-self: center;
-  background-color: #f6f6ef;
+  background-color: white;
 }
 
 .hidden {
